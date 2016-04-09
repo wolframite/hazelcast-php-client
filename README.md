@@ -1,7 +1,6 @@
-# Hazelcast PHP Client
+# Hazelcast PHP Client [![Build Status](https://travis-ci.org/Lunatic666/hazelcast-php-client.svg?branch=master)](https://travis-ci.org/Lunatic666/hazelcast-php-client)
 
 PHP client implementation for [Hazelcast](http://www.hazelcast.org)
-
 
 # License
 
