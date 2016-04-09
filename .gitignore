@@ -1,0 +1,12 @@
+# composer
+composer.phar
+composer.lock
+vendor
+
+# IDE
+.idea
+localruleset.xml
+
+# Build
+build
+test.php

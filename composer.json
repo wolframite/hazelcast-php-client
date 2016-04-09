@@ -1,0 +1,25 @@
+{
+  "name": "lunatic/hazelcast-php-client",
+  "description": "Hazelcast client using the Open Binary Client Protocol",
+  "type": "library",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Wolfram Huesken",
+      "email": "woh@m18.io"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">= 5.6",
+    "zalora/punyan": "~0.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "5.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Hazelcast\\": "src/"
+    }
+  }
+}
