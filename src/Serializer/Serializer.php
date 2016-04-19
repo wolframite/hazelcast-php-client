@@ -13,6 +13,71 @@ use Hazelcast\Message\Message;
 interface Serializer
 {
     /**
+     * @var string
+     */
+    const HZ_UINT8 = 'uint8';
+
+    /**
+     * @var string
+     */
+    const HZ_UINT16 = 'uint16';
+
+    /**
+     * @var string
+     */
+    const HZ_UINT32 = 'uint32';
+
+    /**
+     * @var string
+     */
+    const HZ_UINT64 = 'uint64';
+
+    /**
+     * @var string
+     */
+    const HZ_IN8 = 'int8';
+
+    /**
+     * @var string
+     */
+    const HZ_INT16 = 'int16';
+
+    /**
+     * @var string
+     */
+    const HZ_INT32 = 'int32';
+
+    /**
+     * @var string
+     */
+    const HZ_INT64 = 'int64';
+
+    /**
+     * @var string
+     */
+    const HZ_FLOAT = 'float';
+
+    /**
+     * @var string
+     */
+    const HZ_DOUBLE = 'double';
+
+    /**
+     * @var string
+     */
+    const HZ_BOOLEAN = 'boolean';
+
+    /**
+     * @var string
+     */
+    const HZ_STRING = 'string';
+
+    /**
+     * @var string
+     */
+    const HZ_BYTE_ARRAY = 'byte-array';
+
+    /**
      * @param Message $message
      * @return string
      */

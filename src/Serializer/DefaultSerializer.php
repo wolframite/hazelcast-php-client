@@ -26,9 +26,14 @@ class DefaultSerializer implements Serializer
     const TYPE_ANNOTATION = 'Hazelcast\Annotation\HzType';
 
     /**
+     * @var string
+     */
+    protected $packString;
+
+    /**
      * @var array
      */
-    protected $map;
+    protected $packValues;
 
     /**
      * @var Reader
@@ -39,6 +44,13 @@ class DefaultSerializer implements Serializer
      * @var SerializerConfig
      */
     protected $config;
+
+    /**
+     * @var array
+     */
+    protected $packMap = [
+        self::HZ_STRING => 'Va'
+    ];
 
     /**
      * @param SerializerConfig $serializerConfig
@@ -54,17 +66,41 @@ class DefaultSerializer implements Serializer
      */
     public function serialize(Message $message)
     {
+        $this->packString = '';
+        $this->packValues = [];
+
         $reflectionClass = new \ReflectionClass(get_class($message));
         $properties = $reflectionClass->getProperties();
+        $reader = $this->getReader();
+        $headerMap = [];
+        $messageMap = [];
 
         /** @var \ReflectionProperty $property */
         foreach ($properties as $property) {
             /** @var HzType $type */
-            $type = $this->getReader()->getPropertyAnnotation($property, static::TYPE_ANNOTATION);
+            $type = $reader->getPropertyAnnotation($property, static::TYPE_ANNOTATION);
             if (!empty($type)) {
-                $this->map[$property->getName()] = $type->getType();
+                $position = $type->getPosition();
+                if ($position < 0) {
+                    $headerMap[abs($type->getPosition())] = [
+                        'name' => $property->getName(),
+                        'type' => $type->getType()
+                    ];
+                } else {
+                    $messageMap[$type->getPosition()] = [
+                        'name' => $property->getName(),
+                        'type' => $type->getType()
+                    ];
+                }
             }
         }
+
+        // Just to be safe
+        ksort($headerMap);
+        ksort($messageMap);
+
+        $this->buildPackString($this->packString, $this->packValues, $headerMap, $message);
+        $this->buildPackString($this->packString, $this->packValues, $messageMap, $message);
     }
 
     public function unserialize($binaryString)
@@ -89,5 +125,25 @@ class DefaultSerializer implements Serializer
         }
 
         return $this->reader;
+    }
+
+    /**
+     * @param string $packString
+     * @param array $packValues
+     * @param array $map
+     * @param Message $msg
+     */
+    protected function buildPackString(&$packString, array &$packValues, array $map, Message $msg)
+    {
+        foreach ($map as $item) {
+            switch ($item['type']) {
+                case static::HZ_STRING:
+                    $packString .= $this->packMap[$item['type']];
+                    $value = (string) call_user_func(array($msg, sprintf('get%s', ucfirst($item['name']))));
+
+                    $packValues[] = strlen($value);
+                    $packValues[] = $value;
+            }
+        }
     }
 }

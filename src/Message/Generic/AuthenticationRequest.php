@@ -43,49 +43,49 @@ class AuthenticationRequest extends Message
 
     /**
      * @var string
-     * @HzType("string")
+     * @HzType(type = "string", position = 1)
      * @Assert\NotBlank()
      */
     protected $username = 'dev';
 
     /**
      * @var string
-     * @HzType("string")
+     * @HzType(type = "string", position = 2)
      * @Assert\NotBlank()
      */
     protected $password = 'dev-pass';
 
     /**
      * @var string
-     * @HzType("string")
+     * @HzType(type = "string", position = 3)
      * @Assert\NotNull()
      */
     protected $uuid = '';
 
     /**
      * @var string
-     * @HzType("string")
+     * @HzType(type = "string", position = 4)
      * @Assert\NotNull()
      */
     protected $ownerUuid = '';
 
     /**
      * @var bool
-     * @HzType("boolean")
+     * @HzType(type = "boolean", position = 5)
      * @Assert\NotNull()
      */
     protected $isOwnerConnection;
 
     /**
      * @var string
-     * @HzType("string")
+     * @HzType(type = "string", position = 6)
      * @Assert\NotBlank()
      */
     protected $clientType = 'PHP';
 
     /**
      * @var int
-     * @HzType("uint8")
+     * @HzType(type = "uint8", position = 7)
      * @Assert\GreaterThan(value = 0)
      */
     protected $serializationVersion = 1;

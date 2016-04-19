@@ -11,7 +11,8 @@ namespace Hazelcast\Annotation;
  * @Annotation
  * @Target("PROPERTY")
  * @Attributes(
- *     @Attribute("type", type = "string")
+ *     @Attribute("type", type = "string"),
+ *     @Attribute("position", type = "int")
  * )
  * @package Hazelcast\Annotation
  */
@@ -23,11 +24,17 @@ class HzType
     private $type;
 
     /**
+     * @var int
+     */
+    private $position;
+
+    /**
      * @param array $values
      */
     public function __construct(array $values)
     {
-        $this->type = current($values);
+        $this->type = $values['type'];
+        $this->position = $values['position'];
     }
 
     /**
@@ -36,5 +43,13 @@ class HzType
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
     }
 }

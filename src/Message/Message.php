@@ -23,49 +23,49 @@ abstract class Message
 
     /**
      * @var int
-     * @HzType("int32")
+     * @HzType(type = "int32", position = -1)
      * @Assert\GreaterThanOrEqual(value = 22)
      */
     protected $frameSize = 0;
 
     /**
      * @var int
-     * @HzType("uint8")
+     * @HzType(type = "uint8", position = -2)
      * @Assert\GreaterThan(value = 0)
      */
     protected $version = 1;
 
     /**
      * @var int
-     * @HzType("uint8")
+     * @HzType(type = "uint8", position = -3)
      * @Assert\GreaterThan(value = 0)
      */
     protected $flags = 0;
 
     /**
      * @var int
-     * @HzType("uint16")
+     * @HzType(type = "uint16", position = -4)
      * @Assert\GreaterThan(value = 0)
      */
     protected $type = 0;
 
     /**
      * @var int
-     * @HzType("int64")
+     * @HzType(type = "int64", position = -5)
      * @Assert\NotIdenticalTo(value = 0)
      */
     protected $correlationId = 0;
 
     /**
      * @var int
-     * @HzType("int32")
+     * @HzType(type = "int32", position = -6)
      * @Assert\NotIdenticalTo(value = 0)
      */
     protected $partitionId = -1;
 
     /**
      * @var int
-     * @HzType("uint16")
+     * @HzType(type = "uint16", position = -7)
      * @Assert\GreaterThanOrEqual(value = 22)
      */
     protected $dataOffset = 22;
