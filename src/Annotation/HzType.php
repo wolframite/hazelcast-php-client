@@ -6,14 +6,17 @@
 
 namespace Hazelcast\Annotation;
 
+use Zalora\Punyan\ZLog;
+
 /**
  * Doctrine annotation
+ *
  * @Annotation
  * @Target("PROPERTY")
- * @Attributes(
+ * @Attributes({
  *     @Attribute("type", type = "string"),
- *     @Attribute("position", type = "int")
- * )
+ *     @Attribute("position", type = "integer")
+ * })
  * @package Hazelcast\Annotation
  */
 class HzType
@@ -33,6 +36,7 @@ class HzType
      */
     public function __construct(array $values)
     {
+        ZLog::trace('', $values);
         $this->type = $values['type'];
         $this->position = $values['position'];
     }

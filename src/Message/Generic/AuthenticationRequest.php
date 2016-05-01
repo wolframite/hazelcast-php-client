@@ -74,7 +74,7 @@ class AuthenticationRequest extends Message
      * @HzType(type = "boolean", position = 5)
      * @Assert\NotNull()
      */
-    protected $isOwnerConnection;
+    protected $isOwnerConnection = true;
 
     /**
      * @var string

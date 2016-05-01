@@ -12,6 +12,27 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Basic message, cares about header and offers functions to add data
  * @package Hazelcast\Message
+ *
+ * @method void setFrameSize(int $framesize)
+ * @method int getFrameSize()
+ *
+ * @method void setVersion(int $version)
+ * @method int getVersion()
+ *
+ * @method void setFlags(int $flags)
+ * @method int getFlags()
+ *
+ * @method void setType(int $type)
+ * @method int getType()
+ *
+ * @method void setCorrelationId(int $correlationId)
+ * @method int getCorrelationId()
+ *
+ * @method void setPartitionId(int $partitionId)
+ * @method int getPartitionId()
+ *
+ * @method void setDataOffset(int $dataOffset)
+ * @method int getDataOffset()
  */
 abstract class Message
 {
@@ -36,11 +57,12 @@ abstract class Message
     protected $version = 1;
 
     /**
+     * BEGIN & END are set by default
      * @var int
      * @HzType(type = "uint8", position = -3)
      * @Assert\GreaterThan(value = 0)
      */
-    protected $flags = 0;
+    protected $flags = 0b11000000;
 
     /**
      * @var int

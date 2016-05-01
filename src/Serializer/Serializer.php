@@ -35,7 +35,7 @@ interface Serializer
     /**
      * @var string
      */
-    const HZ_IN8 = 'int8';
+    const HZ_INT8 = 'int8';
 
     /**
      * @var string

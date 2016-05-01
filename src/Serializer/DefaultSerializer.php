@@ -13,6 +13,7 @@ use Hazelcast\Config\SerializerConfig;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Annotations\CachedReader;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Zalora\Punyan\ZLog;
 
 /**
  * Converts data to binary string via pack()
@@ -36,6 +37,11 @@ class DefaultSerializer implements Serializer
     protected $packValues;
 
     /**
+     * @var int
+     */
+    protected $frameSize;
+
+    /**
      * @var Reader
      */
     protected $reader;
@@ -49,7 +55,26 @@ class DefaultSerializer implements Serializer
      * @var array
      */
     protected $packMap = [
-        self::HZ_STRING => 'Va'
+        self::HZ_STRING => 'Va',
+        self::HZ_BOOLEAN => 'C',
+        self::HZ_UINT8 => 'C',
+        self::HZ_UINT16 => 'v',
+        self::HZ_UINT32 => 'V',
+        self::HZ_INT32 => 'l',
+        self::HZ_INT64 => 'q',
+    ];
+
+    /**
+     * @var array
+     */
+    protected $frameSizeMap = [
+        self::HZ_STRING => 4,
+        self::HZ_BOOLEAN => 1,
+        self::HZ_UINT8 => 1,
+        self::HZ_UINT16 => 2,
+        self::HZ_UINT32 => 4,
+        self::HZ_INT32 => 4,
+        self::HZ_INT64 => 8
     ];
 
     /**
@@ -68,6 +93,7 @@ class DefaultSerializer implements Serializer
     {
         $this->packString = '';
         $this->packValues = [];
+        $this->frameSize = 0;
 
         $reflectionClass = new \ReflectionClass(get_class($message));
         $properties = $reflectionClass->getProperties();
@@ -77,10 +103,26 @@ class DefaultSerializer implements Serializer
 
         /** @var \ReflectionProperty $property */
         foreach ($properties as $property) {
+            ZLog::trace('', [
+                'property' => $property->getName(),
+                'phpDoc' => $property->getDocComment()
+            ]);
+
             /** @var HzType $type */
             $type = $reader->getPropertyAnnotation($property, static::TYPE_ANNOTATION);
             if (!empty($type)) {
                 $position = $type->getPosition();
+
+                if (empty($position)) {
+                    throw new \RuntimeException(sprintf("'%s' does not carry position", $property->getName()));
+                }
+
+                ZLog::trace('', [
+                    'type' => $type->getType(),
+                    'property' => $property->getName(),
+                    'position' => $position
+                ]);
+
                 if ($position < 0) {
                     $headerMap[abs($type->getPosition())] = [
                         'name' => $property->getName(),
@@ -99,13 +141,29 @@ class DefaultSerializer implements Serializer
         ksort($headerMap);
         ksort($messageMap);
 
-        $this->buildPackString($this->packString, $this->packValues, $headerMap, $message);
-        $this->buildPackString($this->packString, $this->packValues, $messageMap, $message);
+        ZLog::trace('', ['header map' => $headerMap, 'message map' => $messageMap]);
+
+        $this->buildPackString($this->packString, $this->packValues, $this->frameSize, $headerMap, $message);
+        $this->buildPackString($this->packString, $this->packValues, $this->frameSize, $messageMap, $message);
+
+        // Update frame size
+        $this->packValues[0] = $this->frameSize;
+
+        ZLog::trace('', [
+            'packString' => $this->packString,
+            'packValues' => $this->packValues
+        ]);
+
+        return pack($this->packString, ...$this->packValues);
     }
 
+    /**
+     * @param string $binaryString
+     * @return Message
+     */
     public function unserialize($binaryString)
     {
-        // TODO: Implement unserialize() method.
+        echo "Do the magic: " . $binaryString;
     }
 
     /**
@@ -130,19 +188,55 @@ class DefaultSerializer implements Serializer
     /**
      * @param string $packString
      * @param array $packValues
+     * @param int $frameSize
      * @param array $map
      * @param Message $msg
      */
-    protected function buildPackString(&$packString, array &$packValues, array $map, Message $msg)
+    protected function buildPackString(&$packString, array &$packValues, &$frameSize, array $map, Message $msg)
     {
         foreach ($map as $item) {
+            $frameSize += $this->frameSizeMap[$item['type']];
+
             switch ($item['type']) {
                 case static::HZ_STRING:
-                    $packString .= $this->packMap[$item['type']];
                     $value = (string) call_user_func(array($msg, sprintf('get%s', ucfirst($item['name']))));
+                    $dataLength = strlen($value);
 
-                    $packValues[] = strlen($value);
+                    $packValues[] = $dataLength;
                     $packValues[] = $value;
+
+                    $packString .= $this->packMap[$item['type']];
+
+                    $frameSize++;
+                    if ($dataLength > 1) {
+                        $packString .= $dataLength;
+                        $frameSize += $dataLength - 1;
+                    }
+
+                    break;
+                case static::HZ_UINT8:
+                case static::HZ_UINT16:
+                case static::HZ_UINT32:
+                case static::HZ_UINT64:
+                case static::HZ_INT8:
+                case static::HZ_INT16:
+                case static::HZ_INT32:
+                case static::HZ_INT64:
+                case static::HZ_BOOLEAN:
+                    $packString .= $this->packMap[$item['type']];
+                    $value = (int) call_user_func([$msg, sprintf('get%s', ucfirst($item['name']))]);
+                    $packValues[] = $value;
+                    break;
+
+                case static::HZ_FLOAT:
+                case static::HZ_DOUBLE:
+                    $packString .= $this->packMap[$item['type']];
+                    $value = (float) call_user_func([$msg, sprintf('get%s', ucfirst($item['name']))]);
+                    $packValues[] = $value;
+                    break;
+
+                default:
+                    echo "Unknown Type: " . $this->packMap[$item['type']];
             }
         }
     }

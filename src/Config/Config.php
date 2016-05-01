@@ -28,6 +28,11 @@ class Config
     protected $serializerConfig;
 
     /**
+     * @var NetworkConfigStore
+     */
+    protected $networkConfigStore;
+
+    /**
      * Init sub configs
      */
     public function __construct()
@@ -35,6 +40,7 @@ class Config
         $this->groupConfig = new GroupConfig();
         $this->cacheConfig = new CacheConfig();
         $this->serializerConfig = new SerializerConfig($this->getCacheConfig());
+        $this->networkConfigStore = new NetworkConfigStore();
     }
 
     /**
@@ -59,5 +65,13 @@ class Config
     public function getSerializerConfig()
     {
         return $this->serializerConfig;
+    }
+
+    /**
+     * @return NetworkConfigStore
+     */
+    public function getNetworkConfigStore()
+    {
+        return $this->networkConfigStore;
     }
 }

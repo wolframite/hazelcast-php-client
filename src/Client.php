@@ -7,8 +7,9 @@
 namespace Hazelcast;
 
 use Hazelcast\Config\Config;
-use Hazelcast\Serializer\DefaultSerializer;
 use Hazelcast\Serializer\Serializer;
+use Hazelcast\Socket\StreamSocketClient;
+use Hazelcast\Serializer\DefaultSerializer;
 
 /**
  * Hazelcast client
@@ -25,6 +26,11 @@ class Client
      * @var Serializer
      */
     protected $serializer;
+
+    /**
+     * @var StreamSocketClient
+     */
+    protected $socketAdapter;
 
     /**
      * @param Config $config
@@ -75,5 +81,24 @@ class Client
     public function setSerializer(Serializer $serializer)
     {
         $this->serializer = $serializer;
+    }
+
+    /**
+     * @return StreamSocketClient
+     */
+    public function getSocketAdapter()
+    {
+        if (empty($this->socketAdapter)) {
+            $this->socketAdapter = new StreamSocketClient($this->config->getNetworkConfigStore());
+        }
+        return $this->socketAdapter;
+    }
+
+    /**
+     * @param StreamSocketClient $socketAdapter
+     */
+    public function setSocketAdapter(StreamSocketClient $socketAdapter)
+    {
+        $this->socketAdapter = $socketAdapter;
     }
 }

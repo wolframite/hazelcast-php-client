@@ -20,7 +20,7 @@ final class GroupConfig
      * @var string
      */
     const DEFAULT_PASSWORD = 'dev-pass';
-    
+
     /**
      * @var string
      */
